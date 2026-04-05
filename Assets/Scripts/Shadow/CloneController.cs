@@ -60,6 +60,7 @@ public class CloneController : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Static;
         sr.color = new Color(0.6f, 0.6f, 0.6f, 1f);
         gameObject.tag = "Ground";
+        gameObject.layer = LayerMask.NameToLayer("Ground");
     }
 
     public void Init(List<Frame> newFrames)
