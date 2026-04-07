@@ -13,6 +13,13 @@ public class PlayerController : MonoBehaviour
 
     private Vector2 particlesStartPos;
 
+    [Header("Climbing")]
+    [SerializeField] float climbSpeed = 3f;
+    [SerializeField] LayerMask ladderLayer;     
+
+    private bool isClimbing = false;             
+    private float vertical;
+
     [Header("Player Settings")]
     [SerializeField] float speed;
     [SerializeField] float jumpingPower;
@@ -62,10 +69,36 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         float targetSpeed = horizontal * speed;
-
         float newSpeed = Mathf.MoveTowards(rb.velocity.x, targetSpeed, acceleration * Time.fixedDeltaTime);
 
-        rb.velocity = new Vector2(newSpeed, rb.velocity.y);
+        if (isClimbing)
+        {
+            rb.velocity = new Vector2(newSpeed, vertical * climbSpeed);
+            rb.gravityScale = 0f;
+        }
+        else
+        {
+            rb.velocity = new Vector2(newSpeed, rb.velocity.y);
+            rb.gravityScale = 2f;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (((1 << collision.gameObject.layer) & ladderLayer) != 0)
+        {
+            isClimbing = true;
+            animator.SetBool("IsClimbing", true);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (((1 << collision.gameObject.layer) & ladderLayer) != 0)
+        {
+            isClimbing = false;
+            animator.SetBool("IsClimbing", false);
+        }
     }
 
     #region PLAYER_CONTROL
@@ -73,6 +106,7 @@ public class PlayerController : MonoBehaviour
     public void Move(InputAction.CallbackContext context)
     {
         horizontal = context.ReadValue<Vector2>().x;
+        vertical = context.ReadValue<Vector2>().y;
 
         bool grounded = IsGrounded();
 
