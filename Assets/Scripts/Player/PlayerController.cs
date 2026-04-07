@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     [Header("Player Settings")]
     [SerializeField] float speed;
     [SerializeField] float jumpingPower;
+    [SerializeField] float acceleration = 20f;
 
     [Header("Grounding")]
     [SerializeField] LayerMask groundLayer;
@@ -60,7 +61,11 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+        float targetSpeed = horizontal * speed;
+
+        float newSpeed = Mathf.MoveTowards(rb.velocity.x, targetSpeed, acceleration * Time.fixedDeltaTime);
+
+        rb.velocity = new Vector2(newSpeed, rb.velocity.y);
     }
 
     #region PLAYER_CONTROL

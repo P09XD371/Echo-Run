@@ -21,6 +21,9 @@ public class GameController : MonoBehaviour
     private int coinCounter = 0;
     public TMP_Text counterText;
 
+    private int deathCounter = 0;
+    public TMP_Text deathText;
+
     void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
@@ -69,6 +72,10 @@ public class GameController : MonoBehaviour
 
     void Die()
     {
+        deathCounter++;
+        if (deathText != null)
+            deathText.text = "Death: " + deathCounter;
+
         runs.Add(new List<Frame>(currentRun));
 
         SpawnClones();
