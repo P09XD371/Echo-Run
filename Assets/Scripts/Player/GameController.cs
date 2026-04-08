@@ -2,32 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
+using UnityEngine.InputSystem;
 
 public class GameController : MonoBehaviour
 {
-    Vector2 checkpointPos;
-
-    Rigidbody2D playerRb;
-    SpriteRenderer sr;
-
+    [Header("Player & Clones")]
     public GameObject clonePrefab;
+    public InputAction fire; // твое действие fire для атаки
 
-    List<Frame> currentRun = new List<Frame>();
-    List<List<Frame>> runs = new List<List<Frame>>();
+    [Header("UI")]
+    public TMP_Text counterText;
+    public TMP_Text deathText;
 
-    List<GameObject> activeClones = new List<GameObject>();
+    private Vector2 checkpointPos;
+    private Rigidbody2D playerRb;
+    private SpriteRenderer sr;
 
     private int coinCounter = 0;
-    public TMP_Text counterText;
-
     private int deathCounter = 0;
-    public TMP_Text deathText;
+
+    private List<Frame> currentRun = new List<Frame>();
+    private List<List<Frame>> runs = new List<List<Frame>>();
+    private List<GameObject> activeClones = new List<GameObject>();
 
     void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
+
+        if (fire != null)
+            fire.Enable();
     }
 
     void Start()
@@ -42,7 +46,8 @@ public class GameController : MonoBehaviour
 
     void RecordFrame()
     {
-        Frame frame = new Frame(transform.position, sr.flipX);
+        bool isAttacking = fire != null && fire.ReadValue<float>() > 0f;
+        Frame frame = new Frame(transform.position, sr.flipX, isAttacking);
         currentRun.Add(frame);
     }
 
@@ -52,20 +57,18 @@ public class GameController : MonoBehaviour
         {
             Die();
         }
-
         else if (collision.CompareTag("Money") && collision.gameObject.activeSelf)
         {
             collision.gameObject.SetActive(false);
-
             coinCounter++;
-            counterText.text = "Coins: " + coinCounter;
+            if (counterText != null)
+                counterText.text = "Coins: " + coinCounter;
         }
     }
 
     public void UpdateCheckpoint(Vector2 pos)
     {
         checkpointPos = pos;
-
         runs.Clear();
         currentRun.Clear();
     }
@@ -87,20 +90,18 @@ public class GameController : MonoBehaviour
 
     void SpawnClones()
     {
+        // Удаляем старые клоны
         foreach (GameObject clone in activeClones)
-        {
             Destroy(clone);
-        }
-
         activeClones.Clear();
 
+        // Создаем новые клоны
         foreach (var run in runs)
         {
             GameObject clone = Instantiate(clonePrefab, checkpointPos, Quaternion.identity);
-
             CloneController cc = clone.GetComponent<CloneController>();
-            cc.Init(run);
-
+            if (cc != null)
+                cc.Init(run);
             activeClones.Add(clone);
         }
     }
@@ -109,15 +110,12 @@ public class GameController : MonoBehaviour
     {
         playerRb.simulated = false;
         playerRb.velocity = Vector2.zero;
-
         transform.localScale = Vector3.zero;
 
         yield return new WaitForSeconds(delay);
 
         transform.position = checkpointPos;
-
         transform.localScale = new Vector3(2.247446f, 2.472268f, 1);
-
         playerRb.simulated = true;
     }
 }

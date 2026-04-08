@@ -1,19 +1,19 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 public class CloneController : MonoBehaviour
 {
     public List<Frame> frames;
+    public GameObject attackHitbox; // HITBOX клона
 
-    int frameIndex = 0;
+    private int frameIndex = 0;
 
-    Rigidbody2D rb;
-    Collider2D coll;
-    SpriteRenderer sr;
-    Animator anim;
+    private Rigidbody2D rb;
+    private Collider2D coll;
+    private SpriteRenderer sr;
+    private Animator anim;
 
-    bool replaying = true;
+    private bool replaying = true;
 
     void Awake()
     {
@@ -24,6 +24,17 @@ public class CloneController : MonoBehaviour
 
         rb.simulated = false;
         coll.enabled = false;
+
+        // Авто-находим хитбокс, если не назначен
+        if (attackHitbox == null)
+        {
+            attackHitbox = transform.Find("AttackHitbox")?.gameObject;
+            if (attackHitbox == null)
+                Debug.LogWarning("CloneController: AttackHitbox не назначен у клона " + gameObject.name);
+        }
+
+        if (attackHitbox != null)
+            attackHitbox.SetActive(false);
     }
 
     void FixedUpdate()
@@ -44,8 +55,21 @@ public class CloneController : MonoBehaviour
         sr.flipX = frame.flipX;
 
         Vector2 velocity = (frame.position - oldPos) / Time.fixedDeltaTime;
-
         anim.SetFloat("Speed", Mathf.Abs(velocity.x));
+
+        // Управляем хитбоксом
+        if (frame.attack && attackHitbox != null)
+        {
+            if (!attackHitbox.activeSelf)
+            {
+                attackHitbox.SetActive(true);
+                Debug.Log(gameObject.name + " атакует на кадре " + frameIndex);
+            }
+        }
+        else if (attackHitbox != null && attackHitbox.activeSelf)
+        {
+            attackHitbox.SetActive(false);
+        }
 
         frameIndex++;
     }
@@ -66,5 +90,7 @@ public class CloneController : MonoBehaviour
     public void Init(List<Frame> newFrames)
     {
         frames = newFrames;
+        frameIndex = 0;
+        replaying = true;
     }
 }

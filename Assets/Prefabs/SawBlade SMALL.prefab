@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &3099955397219434705
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2402046214314095303, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.79317075
+      objectReference: {fileID: 0}
+    - target: {fileID: 2402046214314095303, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.79317075
+      objectReference: {fileID: 0}
+    - target: {fileID: 2402046214314095303, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.79317075
+      objectReference: {fileID: 0}
+    - target: {fileID: 2402046214314095303, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.053
+      objectReference: {fileID: 0}
+    - target: {fileID: 2402046214314095303, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.009
+      objectReference: {fileID: 0}
+    - target: {fileID: 3845937659269057138, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_Name
+      value: SawBlade (1) Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154281873860823681, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 324.44
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154281873860823681, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 14.55
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154281873860823681, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154281873860823681, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154281873860823681, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154281873860823681, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154281873860823681, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154281873860823681, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154281873860823681, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154281873860823681, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f99a84af2f5a70744a19e7b61fd5ad8c, type: 3}
