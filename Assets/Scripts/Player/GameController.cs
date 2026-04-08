@@ -70,7 +70,7 @@ public class GameController : MonoBehaviour
         currentRun.Clear();
     }
 
-    void Die()
+    public void Die()
     {
         deathCounter++;
         if (deathText != null)

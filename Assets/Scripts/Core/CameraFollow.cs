@@ -13,7 +13,7 @@ public class CameraFollow : MonoBehaviour
         pos.y += yOffset;
         pos.z = -10f;
 
-        float ppu = 16f; // Pixels per Unit
+        float ppu = 16f;
         pos.x = Mathf.Round(pos.x * ppu) / ppu;
         pos.y = Mathf.Round(pos.y * ppu) / ppu;
 
