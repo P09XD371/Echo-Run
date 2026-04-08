@@ -8,7 +8,7 @@ public class GameController : MonoBehaviour
 {
     [Header("Player & Clones")]
     public GameObject clonePrefab;
-    public InputAction fire; // твое действие fire для атаки
+    public InputAction fire;
 
     [Header("UI")]
     public TMP_Text counterText;
@@ -90,12 +90,11 @@ public class GameController : MonoBehaviour
 
     void SpawnClones()
     {
-        // Удаляем старые клоны
+
         foreach (GameObject clone in activeClones)
             Destroy(clone);
         activeClones.Clear();
 
-        // Создаем новые клоны
         foreach (var run in runs)
         {
             GameObject clone = Instantiate(clonePrefab, checkpointPos, Quaternion.identity);

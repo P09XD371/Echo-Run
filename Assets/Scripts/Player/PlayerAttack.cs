@@ -28,7 +28,6 @@ public class PlayerAttack : MonoBehaviour
 
     void Update()
     {
-        // Сброс комбо, если прошло слишком много времени без атаки
         if (Time.time - lastAttackTime > comboResetTime)
         {
             attackStep = 0;
@@ -41,10 +40,9 @@ public class PlayerAttack : MonoBehaviour
 
         lastAttackTime = Time.time;
 
-        int attackNumber = attackStep + 1; // 1, 2, 3
+        int attackNumber = attackStep + 1;
         animator.SetTrigger("Attack" + attackNumber);
 
-        // Подготовка следующего шага комбо
         attackStep = (attackStep + 1) % 3;
     }
 

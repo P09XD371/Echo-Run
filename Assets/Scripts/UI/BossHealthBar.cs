@@ -3,9 +3,8 @@ using UnityEngine.UI;
 
 public class BossHealthBar : MonoBehaviour
 {
-    public EnemyHealth enemy;  // Ссылка на врага
-    public Image healthFill;   // Image с Fill для HP
-
+    public EnemyHealth enemy;
+    public Image healthFill;   
     void Update()
     {
         if (enemy != null)
@@ -15,7 +14,6 @@ public class BossHealthBar : MonoBehaviour
         }
         else
         {
-            // Если враг уничтожен, скрываем панель
             gameObject.SetActive(false);
         }
     }

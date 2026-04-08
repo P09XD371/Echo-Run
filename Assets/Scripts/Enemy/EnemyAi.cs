@@ -83,16 +83,13 @@ public class EnemyAI : MonoBehaviour
     {
         float dir = Mathf.Sign(player.position.x - transform.position.x);
 
-        // Двигаемся к игроку
         rb.velocity = new Vector2(dir * speed, rb.velocity.y);
 
-        // Прыжок через стену
         if (IsWallAhead(dir) && isGrounded)
         {
             Jump();
         }
 
-        // Прыжок на платформу, если игрок выше
         JumpTowardsPlayer();
 
         Flip(dir);
@@ -103,10 +100,9 @@ public class EnemyAI : MonoBehaviour
         float verticalDiff = player.position.y - transform.position.y;
         float horizontalDiff = player.position.x - transform.position.x;
 
-        // Проверяем только если игрок выше врага
         if (verticalDiff > 0.5f)
         {
-            // Луч вперед и вниз под небольшим углом (1 юнит вперед, 2 вверх)
+
             Vector2 origin = new Vector2(transform.position.x, transform.position.y + 0.1f);
             Vector2 direction = new Vector2(Mathf.Sign(horizontalDiff), 1).normalized;
             float distance = 2f;
@@ -114,7 +110,6 @@ public class EnemyAI : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(origin, direction, distance, groundLayer);
             Debug.DrawRay(origin, direction * distance, Color.red);
 
-            // Прыгаем, если есть платформа
             if (hit.collider != null && isGrounded)
             {
                 Jump();

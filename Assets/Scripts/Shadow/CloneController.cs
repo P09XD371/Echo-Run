@@ -4,7 +4,7 @@ using UnityEngine;
 public class CloneController : MonoBehaviour
 {
     public List<Frame> frames;
-    public GameObject attackHitbox; // HITBOX клона
+    public GameObject attackHitbox;
 
     private int frameIndex = 0;
 
@@ -25,7 +25,6 @@ public class CloneController : MonoBehaviour
         rb.simulated = false;
         coll.enabled = false;
 
-        // Авто-находим хитбокс, если не назначен
         if (attackHitbox == null)
         {
             attackHitbox = transform.Find("AttackHitbox")?.gameObject;
@@ -57,7 +56,6 @@ public class CloneController : MonoBehaviour
         Vector2 velocity = (frame.position - oldPos) / Time.fixedDeltaTime;
         anim.SetFloat("Speed", Mathf.Abs(velocity.x));
 
-        // Управляем хитбоксом
         if (frame.attack && attackHitbox != null)
         {
             if (!attackHitbox.activeSelf)
