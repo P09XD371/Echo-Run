@@ -83,6 +83,22 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    [SerializeField] Transform attackHitbox;
+    [SerializeField] Vector2 hitboxOffsetRight;
+    [SerializeField] Vector2 hitboxOffsetLeft;
+
+    private void UpdateHitboxPosition()
+    {
+        if (sprite.flipX)
+        {
+            attackHitbox.localPosition = hitboxOffsetLeft;
+        }
+        else
+        {
+            attackHitbox.localPosition = hitboxOffsetRight;
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (((1 << collision.gameObject.layer) & ladderLayer) != 0)
@@ -111,9 +127,15 @@ public class PlayerController : MonoBehaviour
         bool grounded = IsGrounded();
 
         if (horizontal > 0)
+        {
             sprite.flipX = false;
+            attackHitbox.localPosition = hitboxOffsetRight;
+        }
         else if (horizontal < 0)
+        {
             sprite.flipX = true;
+            attackHitbox.localPosition = hitboxOffsetLeft;
+        }
 
         var emission = dustParticle.emission;
 

@@ -9,6 +9,7 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private Transform attackPoint;
     [SerializeField] private LayerMask enemyLayers = ~0;
     [SerializeField] private float comboResetTime = 1f;
+    private Transform spriteTransform;
 
     private Animator animator;
     private int attackStep = 0;
@@ -17,6 +18,12 @@ public class PlayerAttack : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
+    }
+    void UpdateAttackPoint()
+    {
+        Vector3 localPos = attackPoint.localPosition;
+        localPos.x = Mathf.Abs(localPos.x) * Mathf.Sign(spriteTransform.localScale.x);
+        attackPoint.localPosition = localPos;
     }
 
     void Update()
