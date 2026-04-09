@@ -5166,6 +5166,10 @@ MonoBehaviour:
   animator: {fileID: 7899063232678659008}
   sprite: {fileID: 9180536574049330856}
   dustParticle: {fileID: 6953850074502414282}
+  climbSpeed: 3
+  ladderLayer:
+    serializedVersion: 2
+    m_Bits: 0
   speed: 5
   jumpingPower: 10
   acceleration: 20
@@ -5173,6 +5177,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   groundCheck: {fileID: 3428133864909810960}
+  attackHitbox: {fileID: 0}
+  hitboxOffsetRight: {x: 0, y: 0}
+  hitboxOffsetLeft: {x: 0, y: 0}
 --- !u!95 &7899063232678659008
 Animator:
   serializedVersion: 7
@@ -5208,8 +5215,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameController
   clonePrefab: {fileID: 7324126154811044190, guid: eb24bf118a59f9f4c9797870f7bf94e1, type: 3}
+  fire:
+    m_Name: Fire
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: d63f9037-c215-4191-a68e-81b6fbea8ac6
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
   counterText: {fileID: 0}
   deathText: {fileID: 0}
+  bossHealth: {fileID: 0}
 --- !u!114 &6315316954127126514
 MonoBehaviour:
   m_ObjectHideFlags: 0
