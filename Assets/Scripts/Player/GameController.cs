@@ -24,6 +24,7 @@ public class GameController : MonoBehaviour
     private List<Frame> currentRun = new List<Frame>();
     private List<List<Frame>> runs = new List<List<Frame>>();
     private List<GameObject> activeClones = new List<GameObject>();
+    public EnemyHealth bossHealth;
 
     void Awake()
     {
@@ -76,8 +77,12 @@ public class GameController : MonoBehaviour
     public void Die()
     {
         deathCounter++;
+
         if (deathText != null)
             deathText.text = "Death: " + deathCounter;
+
+        if (bossHealth != null)
+            bossHealth.ResetHealth();
 
         runs.Add(new List<Frame>(currentRun));
 

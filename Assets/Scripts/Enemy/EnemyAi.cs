@@ -22,13 +22,22 @@ public class EnemyAI : MonoBehaviour
     [Header("UI")]
     public BossHealthBar healthBar;
 
+    [Header("Obstacle Jump")]
+    public Transform obstacleCheck;
+    public float obstacleCheckDistance = 0.5f;
+    public float obstacleHeightCheck = 1.2f;
+    
+    [Header("Jump Detection")]
+    public Transform obstacleDetector;
+    public Vector2 obstacleSize = new Vector2(0.5f, 0.8f);
+
     Rigidbody2D rb;
 
     bool isGrounded;
 
     bool playerInside = false;
     float attackTimer = 0f;
-    float attackDelay = 3f;
+    float attackDelay = 2f;
 
     void Start()
     {
@@ -43,6 +52,11 @@ public class EnemyAI : MonoBehaviour
             hitbox.OnPlayerEnter += OnPlayerEnter;
             hitbox.OnPlayerExit += OnPlayerExit;
         }
+
+        if (healthBar != null)
+        {
+            healthBar.gameObject.SetActive(false);
+        }
     }
 
     void Update()
@@ -51,8 +65,16 @@ public class EnemyAI : MonoBehaviour
 
         float distance = Vector2.Distance(transform.position, player.position);
 
-        if (distance > detectionRadius) return;
+        if (distance > detectionRadius)
+        {
+            if (healthBar != null)
+                healthBar.gameObject.SetActive(false);
 
+            return;
+        }
+
+        if (healthBar != null)
+            healthBar.gameObject.SetActive(true);
 
         if (distance <= attackDistance)
         {
@@ -74,6 +96,47 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    bool IsObstacleAhead(float dir)
+    {
+        Vector2 center = obstacleDetector.position + new Vector3(dir * 0.3f, 0);
+
+        Collider2D hit = Physics2D.OverlapBox(
+            center,
+            obstacleSize,
+            0,
+            obstacleLayer
+        );
+
+        return hit != null;
+    }
+
+    bool ShouldJump(float dir)
+    {
+        Vector2 forwardOrigin = obstacleCheck.position;
+        Vector2 upOrigin = obstacleCheck.position + Vector3.up * obstacleHeightCheck;
+
+        Vector2 forwardDir = Vector2.right * dir;
+
+        RaycastHit2D wall = Physics2D.Raycast(
+            forwardOrigin,
+            forwardDir,
+            obstacleCheckDistance,
+            obstacleLayer
+        );
+
+        RaycastHit2D spaceAbove = Physics2D.Raycast(
+            upOrigin,
+            forwardDir,
+            obstacleCheckDistance,
+            obstacleLayer
+        );
+
+        Debug.DrawRay(forwardOrigin, forwardDir * obstacleCheckDistance, Color.red);
+        Debug.DrawRay(upOrigin, forwardDir * obstacleCheckDistance, Color.green);
+
+        return wall.collider != null && spaceAbove.collider == null;
+    }
+
     void DetectGround()
     {
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
@@ -85,12 +148,10 @@ public class EnemyAI : MonoBehaviour
 
         rb.velocity = new Vector2(dir * speed, rb.velocity.y);
 
-        if (IsWallAhead(dir) && isGrounded)
+        if (IsObstacleAhead(dir) && isGrounded)
         {
             Jump();
         }
-
-        JumpTowardsPlayer();
 
         Flip(dir);
     }
@@ -168,16 +229,42 @@ public class EnemyAI : MonoBehaviour
 
     bool IsWallAhead(float dir)
     {
+        Vector2 origin = wallCheck.position;
+        Vector2 direction = Vector2.right * dir;
+
+        Debug.DrawRay(origin, direction * wallCheckDistance, Color.green);
+
         RaycastHit2D hit = Physics2D.Raycast(
-            wallCheck.position,
-            Vector2.right * dir,
+            origin,
+            direction,
             wallCheckDistance,
             obstacleLayer
         );
 
-        return hit.collider != null && hit.collider.CompareTag("Ground");
+        return hit.collider != null;
     }
 
+    bool IsStepAhead(float dir)
+    {
+        Vector2 origin = new Vector2(transform.position.x, transform.position.y - 0.4f);
+        Vector2 direction = Vector2.right * dir;
+
+        float distance = 0.6f;
+
+        Debug.DrawRay(origin, direction * distance, Color.blue);
+
+        RaycastHit2D hit = Physics2D.Raycast(origin, direction, distance, obstacleLayer);
+
+        return hit.collider != null;
+    }
+
+    void OnDrawGizmos()
+    {
+        if (obstacleDetector == null) return;
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireCube(obstacleDetector.position, obstacleSize);
+    }
 
 
     void OnDrawGizmosSelected()
