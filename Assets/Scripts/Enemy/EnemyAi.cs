@@ -146,7 +146,7 @@ public class EnemyAI : MonoBehaviour
     {
         float dir = Mathf.Sign(player.position.x - transform.position.x);
 
-        rb.velocity = new Vector2(dir * speed, rb.velocity.y);
+        rb.linearVelocity = new Vector2(dir * speed, rb.linearVelocity.y);
 
         if (IsObstacleAhead(dir) && isGrounded)
         {
@@ -182,13 +182,13 @@ public class EnemyAI : MonoBehaviour
     {
         if (isGrounded)
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
     }
 
     void Attack()
     {
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
     }
 
     void OnPlayerEnter(PlayerController player)

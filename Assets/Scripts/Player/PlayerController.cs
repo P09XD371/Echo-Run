@@ -69,16 +69,16 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         float targetSpeed = horizontal * speed;
-        float newSpeed = Mathf.MoveTowards(rb.velocity.x, targetSpeed, acceleration * Time.fixedDeltaTime);
+        float newSpeed = Mathf.MoveTowards(rb.linearVelocity.x, targetSpeed, acceleration * Time.fixedDeltaTime);
 
         if (isClimbing)
         {
-            rb.velocity = new Vector2(newSpeed, vertical * climbSpeed);
+            rb.linearVelocity = new Vector2(newSpeed, vertical * climbSpeed);
             rb.gravityScale = 0f;
         }
         else
         {
-            rb.velocity = new Vector2(newSpeed, rb.velocity.y);
+            rb.linearVelocity = new Vector2(newSpeed, rb.linearVelocity.y);
             rb.gravityScale = 2f;
         }
     }
@@ -159,7 +159,7 @@ public class PlayerController : MonoBehaviour
     {
         if (context.performed && IsGrounded())
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpingPower);
         }
     }
 

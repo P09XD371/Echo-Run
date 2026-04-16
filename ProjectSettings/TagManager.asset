@@ -48,6 +48,24 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Back1
+    uniqueID: 2531011233
+    locked: 0
+  - name: Back2
+    uniqueID: 1489543827
+    locked: 0
+  - name: Back3
+    uniqueID: 2767093593
+    locked: 0
+  - name: Back4
+    uniqueID: 862107761
+    locked: 0
+  - name: Back5
+    uniqueID: 1151593657
+    locked: 0
+  - name: Game
+    uniqueID: 993369015
+    locked: 0
   m_RenderingLayers:
   - Default
   m_MigratedRenderPipelines: []

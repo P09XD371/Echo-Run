@@ -113,7 +113,7 @@ public class GameController : MonoBehaviour
     IEnumerator Respawn(float delay)
     {
         playerRb.simulated = false;
-        playerRb.velocity = Vector2.zero;
+        playerRb.linearVelocity = Vector2.zero;
         transform.localScale = Vector3.zero;
 
         yield return new WaitForSeconds(delay);
