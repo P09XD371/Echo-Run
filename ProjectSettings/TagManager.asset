@@ -63,6 +63,12 @@ TagManager:
   - name: Back5
     uniqueID: 1151593657
     locked: 0
+  - name: Sewer1
+    uniqueID: 1909351577
+    locked: 0
+  - name: Sewer2
+    uniqueID: 845346467
+    locked: 0
   - name: Game
     uniqueID: 993369015
     locked: 0
