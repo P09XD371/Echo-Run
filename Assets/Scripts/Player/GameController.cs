@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -90,7 +90,8 @@ public class GameController : MonoBehaviour
 
         currentRun.Clear();
 
-        StartCoroutine(Respawn(0.5f));
+        // ❗ теперь смерть обрабатывает DeathManager
+        FindObjectOfType<DieScript>().OnPlayerDeath();
     }
 
     void SpawnClones()
@@ -110,7 +111,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    IEnumerator Respawn(float delay)
+    public IEnumerator Respawn(float delay)
     {
         playerRb.simulated = false;
         playerRb.linearVelocity = Vector2.zero;

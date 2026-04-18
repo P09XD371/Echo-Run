@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Playables;
@@ -12,6 +12,8 @@ public class DialogUi : MonoBehaviour
     [SerializeField] private DialogueObject testDialogue;
 
     [SerializeField] private PlayableDirector timeline;
+
+    [SerializeField] private GameObject player;
 
     [SerializeField] private GameObject timer;
     [SerializeField] private GameObject coinCounter;
@@ -29,6 +31,8 @@ public class DialogUi : MonoBehaviour
         coins.SetActive(false);
         deathText.SetActive(false);
 
+        player.SetActive(false);
+
         CloseDialogueBox();
         ShowDialogue(testDialogue);
     }
@@ -41,18 +45,41 @@ public class DialogUi : MonoBehaviour
     {
         foreach (string dialogue in dialogueObject.Dialogues)
         {
-            yield return typewriterEffect.Run(dialogue, textLabel);
-            yield return new WaitUntil(() => Keyboard.current.spaceKey.wasPressedThisFrame);
+            Coroutine typing = StartCoroutine(typewriterEffect.Run(dialogue, textLabel));
+
+            bool lineFinished = false;
+
+            while (!lineFinished)
+            {
+                if (Keyboard.current.spaceKey.wasPressedThisFrame)
+                {
+                    // если текст ещё печатается → скипаем
+                    if (typing != null)
+                    {
+                        typewriterEffect.RequestSkip();
+                        yield return typing; // дождаться завершения
+                        typing = null;
+                    }
+                    else
+                    {
+                        // если уже допечатан → идём дальше
+                        lineFinished = true;
+                    }
+                }
+
+                yield return null;
+            }
         }
 
         CloseDialogueBox();
 
-        // �������� UI
+        player.SetActive(true);
+
         timer.SetActive(true);
         coinCounter.SetActive(true);
         coins.SetActive(true);
         deathText.SetActive(true);
-        // ������ ��������
+
         timeline.Play();
     }
     public void CloseDialogueBox()
