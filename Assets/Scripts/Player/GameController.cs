@@ -14,6 +14,12 @@ public class GameController : MonoBehaviour
     public TMP_Text counterText;
     public TMP_Text deathText;
 
+    public CutsceneController cutscene;
+    private bool firstDeathCutscenePlayed = false;
+    public bool isInCutscene = false;
+
+    private bool isDead = false;
+
     private Vector2 checkpointPos;
     private Rigidbody2D playerRb;
     private SpriteRenderer sr;
@@ -38,6 +44,7 @@ public class GameController : MonoBehaviour
     void Start()
     {
         checkpointPos = transform.position;
+        playerRb.simulated = true;
     }
 
     void FixedUpdate()
@@ -47,6 +54,8 @@ public class GameController : MonoBehaviour
 
     void RecordFrame()
     {
+        if (isInCutscene || isDead) return;
+
         bool isAttacking = fire != null && fire.ReadValue<float>() > 0f;
         Frame frame = new Frame(transform.position, sr.flipX, isAttacking);
         currentRun.Add(frame);
@@ -76,6 +85,10 @@ public class GameController : MonoBehaviour
 
     public void Die()
     {
+        isDead = true;
+        playerRb.linearVelocity = Vector2.zero;
+        playerRb.simulated = false;
+
         deathCounter++;
 
         if (deathText != null)
@@ -84,30 +97,36 @@ public class GameController : MonoBehaviour
         if (bossHealth != null)
             bossHealth.ResetHealth();
 
-        runs.Add(new List<Frame>(currentRun));
-
-        SpawnClones();
+        if (!isInCutscene)
+        {
+            runs.Add(new List<Frame>(currentRun));
+            SpawnClones();
+        }
 
         currentRun.Clear();
 
-        StartCoroutine(Respawn(0.5f));
+        if (!firstDeathCutscenePlayed)
+        {
+            firstDeathCutscenePlayed = true;
+            StartCoroutine(FirstDeathRoutine());
+        }
+        else
+        {
+            StartCoroutine(Respawn(0.5f));
+        }
     }
 
     void SpawnClones()
     {
+        var lastRun = runs[runs.Count - 1];
 
-        foreach (GameObject clone in activeClones)
-            Destroy(clone);
-        activeClones.Clear();
+        GameObject clone = Instantiate(clonePrefab, checkpointPos, Quaternion.identity);
 
-        foreach (var run in runs)
-        {
-            GameObject clone = Instantiate(clonePrefab, checkpointPos, Quaternion.identity);
-            CloneController cc = clone.GetComponent<CloneController>();
-            if (cc != null)
-                cc.Init(run);
-            activeClones.Add(clone);
-        }
+        CloneController cc = clone.GetComponent<CloneController>();
+        if (cc != null)
+            cc.Init(lastRun);
+
+        activeClones.Add(clone);
     }
 
     public IEnumerator Respawn(float delay)
@@ -121,5 +140,24 @@ public class GameController : MonoBehaviour
         transform.position = checkpointPos;
         transform.localScale = new Vector3(2.247446f, 2.472268f, 1);
         playerRb.simulated = true;
+
+        // 🔥 ФИКС
+        var pc = GetComponent<PlayerController>();
+        var pa = GetComponent<PlayerAttack>();
+
+        pc.enabled = true;
+        pa.enabled = true;
+
+        isDead = false;
+    }
+
+    IEnumerator FirstDeathRoutine()
+    {
+        if (cutscene != null)
+            cutscene.PlayCutscene();
+
+        yield return new WaitForSeconds((float)cutscene.director.duration);
+
+        yield return StartCoroutine(Respawn(0.5f));
     }
 }

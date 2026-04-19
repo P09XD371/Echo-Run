@@ -5272,6 +5272,8 @@ MonoBehaviour:
     m_Flags: 0
   counterText: {fileID: 0}
   deathText: {fileID: 0}
+  cutscene: {fileID: 0}
+  isInCutscene: 0
   bossHealth: {fileID: 0}
 --- !u!114 &6315316954127126514
 MonoBehaviour:
