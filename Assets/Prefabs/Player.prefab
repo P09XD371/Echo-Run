@@ -5270,6 +5270,15 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
+  reset:
+    m_Name: 
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 32676e8f-8e24-474e-8165-45e074535a17
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
   counterText: {fileID: 0}
   deathText: {fileID: 0}
   cutscene: {fileID: 0}

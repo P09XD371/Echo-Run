@@ -9,6 +9,7 @@ public class GameController : MonoBehaviour
     [Header("Player & Clones")]
     public GameObject clonePrefab;
     public InputAction fire;
+    public InputAction reset;
 
     [Header("UI")]
     public TMP_Text counterText;
@@ -37,14 +38,26 @@ public class GameController : MonoBehaviour
         playerRb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
 
-        if (fire != null)
-            fire.Enable();
+        if (fire != null) fire.Enable();
+        if (reset.triggered)
+        {
+            Debug.Log("R нажата");
+        }
+        if (reset != null) reset.Enable();
     }
 
     void Start()
     {
         checkpointPos = transform.position;
         playerRb.simulated = true;
+    }
+
+    void Update()
+    {
+        if (reset != null && reset.triggered)
+        {
+            ForceReset();
+        }
     }
 
     void FixedUpdate()
@@ -175,6 +188,33 @@ public class GameController : MonoBehaviour
         }
 
         activeClones.Clear();
+    }
+
+    void ForceReset()
+    {
+        StopAllCoroutines();
+
+        isDead = false;
+
+        ClearClones();
+
+        runs.Clear();
+        currentRun.Clear();
+
+        if (bossHealth != null)
+            bossHealth.ResetHealth();
+
+        transform.position = checkpointPos;
+        playerRb.linearVelocity = Vector2.zero;
+        playerRb.simulated = true;
+
+        var pc = GetComponent<PlayerController>();
+        var pa = GetComponent<PlayerAttack>();
+
+        pc.enabled = true;
+        pa.enabled = true;
+
+        transform.localScale = new Vector3(2.247446f, 2.472268f, 1);
     }
 
 }

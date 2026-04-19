@@ -1,278 +1,285 @@
+using System.Collections;
 using UnityEngine;
+using Unity.Cinemachine;
 
-public class EnemyAI : MonoBehaviour
+public class BossAI : MonoBehaviour
 {
-    [Header("Target & Movement")]
+    [Header("Player")]
     public Transform player;
-    public float speed = 3f;
-    public float jumpForce = 7f;
-    public float detectionRadius = 8f;
-    public float attackDistance = 1.5f;
 
-    [Header("Ground & Obstacles")]
-    public Transform groundCheck;
-    public Transform wallCheck;
-    public float wallCheckDistance = 0.6f;
-    public LayerMask groundLayer;
-    public LayerMask obstacleLayer;
+    [Header("Arena")]
+    public Transform arenaCenter;
 
-    [Header("Attack")]
-    public GameObject attackHitbox;
+    [Header("HP")]
+    public float maxHealth = 100f;
+    float currentHealth;
+
+    [Header("Movement")]
+    public float chargeSpeed = 18f;
+    public float jumpForce = 12f;
+    public float screenAttackSpeed = 20f;
+
+    [Header("Timing")]
+    public float attackCooldownTime = 5f;
+
+    [Header("Cinemachine")]
+    public CinemachineImpulseSource impulseSource;
+
+    [Header("Hitbox")]
+    public EnemyAttackHitbox hitbox;
+
+    [Header("Detection")]
+    public float detectionRadius = 10f;
 
     [Header("UI")]
-    public BossHealthBar healthBar;
-
-    [Header("Obstacle Jump")]
-    public Transform obstacleCheck;
-    public float obstacleCheckDistance = 0.5f;
-    public float obstacleHeightCheck = 1.2f;
-    
-    [Header("Jump Detection")]
-    public Transform obstacleDetector;
-    public Vector2 obstacleSize = new Vector2(0.5f, 0.8f);
+    public GameObject bossHealthPanel;
 
     Rigidbody2D rb;
 
-    bool isGrounded;
+    bool isActive = false;
+    bool isAttacking = false;
+    bool attackActive = false;
+    bool canAttack = true;
 
-    bool playerInside = false;
-    float attackTimer = 0f;
-    float attackDelay = 2f;
+    bool phase2 = false;
+
+    float speedMultiplier = 1f;
+    float cooldownMultiplier = 1f;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-
-        attackHitbox.SetActive(true);
-
-        EnemyAttackHitbox hitbox = attackHitbox.GetComponent<EnemyAttackHitbox>();
+        currentHealth = maxHealth;
 
         if (hitbox != null)
-        {
-            hitbox.OnPlayerEnter += OnPlayerEnter;
-            hitbox.OnPlayerExit += OnPlayerExit;
-        }
+            hitbox.OnPlayerHit += HandlePlayerHit;
 
-        if (healthBar != null)
-        {
-            healthBar.gameObject.SetActive(false);
-        }
+        StartCoroutine(BossLoop());
     }
 
     void Update()
     {
-        DetectGround();
+        CheckPhase();
+        CheckPlayerDetection();
+    }
 
+
+    void CheckPlayerDetection()
+    {
         float distance = Vector2.Distance(transform.position, player.position);
 
-        if (distance > detectionRadius)
+        if (distance <= detectionRadius)
         {
-            if (healthBar != null)
-                healthBar.gameObject.SetActive(false);
+            if (!isActive)
+            {
+                isActive = true;
 
-            return;
-        }
-
-        if (healthBar != null)
-            healthBar.gameObject.SetActive(true);
-
-        if (distance <= attackDistance)
-        {
-            Attack();
+                if (bossHealthPanel != null)
+                    bossHealthPanel.SetActive(true);
+            }
         }
         else
         {
-            Chase();
-        }
+            isActive = false;
 
-        if (playerInside)
+            if (bossHealthPanel != null)
+                bossHealthPanel.SetActive(false);
+        }
+    }
+
+
+    void CheckPhase()
+    {
+        if (!phase2 && currentHealth <= maxHealth * 0.5f)
         {
-            attackTimer += Time.deltaTime;
-
-            if (attackTimer >= attackDelay)
-            {
-                KillPlayer();
-            }
+            phase2 = true;
+            speedMultiplier = 1.5f;
+            cooldownMultiplier = 0.65f;
         }
     }
 
-    bool IsObstacleAhead(float dir)
+    IEnumerator BossLoop()
     {
-        Vector2 center = obstacleDetector.position + new Vector3(dir * 0.3f, 0);
+        while (true)
+        {
+            if (isActive && !isAttacking && canAttack)
+            {
+                int attack = Random.Range(0, 3);
 
-        Collider2D hit = Physics2D.OverlapBox(
-            center,
-            obstacleSize,
-            0,
-            obstacleLayer
-        );
+                if (attack == 0)
+                    yield return StartCoroutine(ChargeAttack());
 
-        return hit != null;
+                if (attack == 1)
+                    yield return StartCoroutine(JumpSmash());
+
+                if (attack == 2)
+                    yield return StartCoroutine(ScreenAttack());
+
+                StartCoroutine(CooldownRoutine());
+            }
+
+            yield return null;
+        }
     }
 
-    bool ShouldJump(float dir)
+
+    IEnumerator ChargeAttack()
     {
-        Vector2 forwardOrigin = obstacleCheck.position;
-        Vector2 upOrigin = obstacleCheck.position + Vector3.up * obstacleHeightCheck;
+        isAttacking = true;
 
-        Vector2 forwardDir = Vector2.right * dir;
+        yield return MoveToCenter();
 
-        RaycastHit2D wall = Physics2D.Raycast(
-            forwardOrigin,
-            forwardDir,
-            obstacleCheckDistance,
-            obstacleLayer
-        );
+        attackActive = true;
 
-        RaycastHit2D spaceAbove = Physics2D.Raycast(
-            upOrigin,
-            forwardDir,
-            obstacleCheckDistance,
-            obstacleLayer
-        );
+        Shake(1f);
 
-        Debug.DrawRay(forwardOrigin, forwardDir * obstacleCheckDistance, Color.red);
-        Debug.DrawRay(upOrigin, forwardDir * obstacleCheckDistance, Color.green);
-
-        return wall.collider != null && spaceAbove.collider == null;
-    }
-
-    void DetectGround()
-    {
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
-    }
-
-    void Chase()
-    {
         float dir = Mathf.Sign(player.position.x - transform.position.x);
 
-        rb.linearVelocity = new Vector2(dir * speed, rb.linearVelocity.y);
+        float t = 0f;
 
-        if (IsObstacleAhead(dir) && isGrounded)
+        while (t < 1.2f)
         {
-            Jump();
+            t += Time.deltaTime;
+
+            rb.linearVelocity = new Vector2(
+                dir * chargeSpeed * speedMultiplier,
+                rb.linearVelocity.y
+            );
+
+            yield return null;
         }
 
-        Flip(dir);
+        attackActive = false;
+        rb.linearVelocity = Vector2.zero;
+
+        isAttacking = false;
     }
 
-    void JumpTowardsPlayer()
+    IEnumerator JumpSmash()
     {
-        float verticalDiff = player.position.y - transform.position.y;
-        float horizontalDiff = player.position.x - transform.position.x;
+        isAttacking = true;
 
-        if (verticalDiff > 0.5f)
+        yield return MoveToCenter();
+
+        SlowMo(0.4f, 0.3f);
+
+        attackActive = true;
+
+        rb.linearVelocity = new Vector2(0, jumpForce * speedMultiplier);
+
+        yield return new WaitForSeconds(0.5f);
+
+        rb.linearVelocity = new Vector2(0, -jumpForce * 1.5f * speedMultiplier);
+
+        yield return new WaitForSeconds(0.5f);
+
+        attackActive = false;
+        rb.linearVelocity = Vector2.zero;
+
+        isAttacking = false;
+    }
+
+
+    IEnumerator ScreenAttack()
+    {
+        isAttacking = true;
+
+        float side = Random.value > 0.5f ? 1 : -1;
+
+        transform.position = new Vector2(player.position.x + side * 12f, transform.position.y);
+
+        yield return new WaitForSeconds(0.5f);
+
+        for (int i = 0; i < 3; i++)
         {
+            attackActive = true;
 
-            Vector2 origin = new Vector2(transform.position.x, transform.position.y + 0.1f);
-            Vector2 direction = new Vector2(Mathf.Sign(horizontalDiff), 1).normalized;
-            float distance = 2f;
+            float targetX = player.position.x;
 
-            RaycastHit2D hit = Physics2D.Raycast(origin, direction, distance, groundLayer);
-            Debug.DrawRay(origin, direction * distance, Color.red);
-
-            if (hit.collider != null && isGrounded)
+            while (Mathf.Abs(transform.position.x - targetX) > 0.5f)
             {
-                Jump();
+                float dir = Mathf.Sign(targetX - transform.position.x);
+
+                rb.linearVelocity = new Vector2(
+                    dir * screenAttackSpeed * speedMultiplier,
+                    0
+                );
+
+                yield return null;
             }
+
+            attackActive = false;
+            rb.linearVelocity = Vector2.zero;
+
+            yield return new WaitForSeconds(0.2f);
         }
+
+        isAttacking = false;
     }
 
-    void Jump()
+
+    IEnumerator CooldownRoutine()
     {
-        if (isGrounded)
+        canAttack = false;
+
+        yield return MoveToCenter();
+
+        yield return new WaitForSeconds(attackCooldownTime * cooldownMultiplier);
+
+        canAttack = true;
+    }
+
+
+    IEnumerator MoveToCenter()
+    {
+        while (Vector2.Distance(transform.position, arenaCenter.position) > 0.2f)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            Vector2 dir = (arenaCenter.position - transform.position).normalized;
+            rb.linearVelocity = dir * 5f;
+            yield return null;
         }
-    }
 
-    void Attack()
-    {
         rb.linearVelocity = Vector2.zero;
     }
 
-    void OnPlayerEnter(PlayerController player)
-    {
-        Debug.Log("PLAYER ENTER HITBOX");
 
-        playerInside = true;
-        attackTimer = 0f;
+    public void TakeDamage(float damage)
+    {
+        currentHealth -= damage;
+
+        if (currentHealth <= 0)
+            Destroy(gameObject);
     }
 
-    void OnPlayerExit(PlayerController player)
+    void HandlePlayerHit(PlayerController player)
     {
-        playerInside = false;
-        attackTimer = 0f;
-    }
+        if (!attackActive) return;
 
-    void KillPlayer()
-    {
         GameController gc = FindObjectOfType<GameController>();
 
         if (gc != null)
-        {
             gc.Die();
-        }
-
-        playerInside = false;
-        attackTimer = 0f;
     }
 
-    void Flip(float dir)
+    void Shake(float force)
     {
-        Vector3 scale = transform.localScale;
-
-        scale.x = Mathf.Abs(scale.x) * Mathf.Sign(dir);
-
-        transform.localScale = scale;
+        if (impulseSource != null)
+            impulseSource.GenerateImpulse(force);
     }
 
-    bool IsWallAhead(float dir)
+    void SlowMo(float duration, float scale)
     {
-        Vector2 origin = wallCheck.position;
-        Vector2 direction = Vector2.right * dir;
-
-        Debug.DrawRay(origin, direction * wallCheckDistance, Color.green);
-
-        RaycastHit2D hit = Physics2D.Raycast(
-            origin,
-            direction,
-            wallCheckDistance,
-            obstacleLayer
-        );
-
-        return hit.collider != null;
+        StartCoroutine(SlowMoRoutine(duration, scale));
     }
 
-    bool IsStepAhead(float dir)
+    IEnumerator SlowMoRoutine(float duration, float scale)
     {
-        Vector2 origin = new Vector2(transform.position.x, transform.position.y - 0.4f);
-        Vector2 direction = Vector2.right * dir;
+        Time.timeScale = scale;
+        Time.fixedDeltaTime = 0.02f * scale;
 
-        float distance = 0.6f;
+        yield return new WaitForSecondsRealtime(duration);
 
-        Debug.DrawRay(origin, direction * distance, Color.blue);
-
-        RaycastHit2D hit = Physics2D.Raycast(origin, direction, distance, obstacleLayer);
-
-        return hit.collider != null;
-    }
-
-    void OnDrawGizmos()
-    {
-        if (obstacleDetector == null) return;
-
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireCube(obstacleDetector.position, obstacleSize);
-    }
-
-
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackDistance);
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
     }
 }

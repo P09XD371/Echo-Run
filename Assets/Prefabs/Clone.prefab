@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 5559007025895925976}
   - component: {fileID: 7887135339501559421}
   - component: {fileID: 5752260182717409442}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Clone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
