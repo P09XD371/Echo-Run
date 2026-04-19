@@ -90,8 +90,7 @@ public class GameController : MonoBehaviour
 
         currentRun.Clear();
 
-        // ❗ теперь смерть обрабатывает DeathManager
-        FindObjectOfType<DieScript>().OnPlayerDeath();
+        StartCoroutine(Respawn(0.5f));
     }
 
     void SpawnClones()
