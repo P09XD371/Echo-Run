@@ -97,9 +97,11 @@ public class GameController : MonoBehaviour
         if (bossHealth != null)
             bossHealth.ResetHealth();
 
-        if (!isInCutscene)
+        runs.Add(new List<Frame>(currentRun));
+
+        if (firstDeathCutscenePlayed)
         {
-            runs.Add(new List<Frame>(currentRun));
+            ClearClones();
             SpawnClones();
         }
 
@@ -118,15 +120,16 @@ public class GameController : MonoBehaviour
 
     void SpawnClones()
     {
-        var lastRun = runs[runs.Count - 1];
+        foreach (var run in runs)
+        {
+            GameObject clone = Instantiate(clonePrefab, checkpointPos, Quaternion.identity);
 
-        GameObject clone = Instantiate(clonePrefab, checkpointPos, Quaternion.identity);
+            CloneController cc = clone.GetComponent<CloneController>();
+            if (cc != null)
+                cc.Init(run);
 
-        CloneController cc = clone.GetComponent<CloneController>();
-        if (cc != null)
-            cc.Init(lastRun);
-
-        activeClones.Add(clone);
+            activeClones.Add(clone);
+        }
     }
 
     public IEnumerator Respawn(float delay)
@@ -141,7 +144,6 @@ public class GameController : MonoBehaviour
         transform.localScale = new Vector3(2.247446f, 2.472268f, 1);
         playerRb.simulated = true;
 
-        // 🔥 ФИКС
         var pc = GetComponent<PlayerController>();
         var pa = GetComponent<PlayerAttack>();
 
@@ -158,6 +160,21 @@ public class GameController : MonoBehaviour
 
         yield return new WaitForSeconds((float)cutscene.director.duration);
 
+        ClearClones();
+        SpawnClones();
+
         yield return StartCoroutine(Respawn(0.5f));
     }
+
+    void ClearClones()
+    {
+        foreach (GameObject clone in activeClones)
+        {
+            if (clone != null)
+                Destroy(clone);
+        }
+
+        activeClones.Clear();
+    }
+
 }
