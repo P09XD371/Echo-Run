@@ -114,7 +114,8 @@ public class GameController : MonoBehaviour
 
         if (firstDeathCutscenePlayed)
         {
-            ClearClones();
+            //ClearClones();
+            RestartAllClones();
             SpawnClones();
         }
 
@@ -133,16 +134,17 @@ public class GameController : MonoBehaviour
 
     void SpawnClones()
     {
-        foreach (var run in runs)
-        {
-            GameObject clone = Instantiate(clonePrefab, checkpointPos, Quaternion.identity);
+        if (runs.Count == 0) return;
 
-            CloneController cc = clone.GetComponent<CloneController>();
-            if (cc != null)
-                cc.Init(run);
+        var run = runs[runs.Count - 1]; // берем последний
 
-            activeClones.Add(clone);
-        }
+        GameObject clone = Instantiate(clonePrefab, checkpointPos, Quaternion.identity);
+
+        CloneController cc = clone.GetComponent<CloneController>();
+        if (cc != null)
+            cc.Init(run);
+
+        activeClones.Add(clone);
     }
 
     public IEnumerator Respawn(float delay)
@@ -215,6 +217,18 @@ public class GameController : MonoBehaviour
         pa.enabled = true;
 
         transform.localScale = new Vector3(2.247446f, 2.472268f, 1);
+    }
+    void RestartAllClones()
+    {
+        foreach (GameObject clone in activeClones)
+        {
+            if (clone != null)
+            {
+                CloneController cc = clone.GetComponent<CloneController>();
+                if (cc != null)
+                    cc.Restart();
+            }
+        }
     }
 
 }

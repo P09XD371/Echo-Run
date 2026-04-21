@@ -12,7 +12,7 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - player
   - Water
   - UI
   - Ground
@@ -21,7 +21,7 @@ TagManager:
   - background
   - Clone
   - ArenaBounds
-  - 
+  - object
   - 
   - 
   - 

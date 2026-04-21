@@ -91,4 +91,16 @@ public class CloneController : MonoBehaviour
         frameIndex = 0;
         replaying = true;
     }
+
+    public void Restart()
+    {
+        frameIndex = 0;
+        replaying = true;
+
+        if (attackHitbox != null)
+            attackHitbox.SetActive(false);
+
+        rb.simulated = false;
+        coll.enabled = false;
+    }
 }
