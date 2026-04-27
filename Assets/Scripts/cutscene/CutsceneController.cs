@@ -12,6 +12,8 @@ public class CutsceneController : MonoBehaviour
 
     public GameController gameController;
 
+    public GameObject dialogueBox3;
+
     public void PlayCutscene()
     {
         StartCoroutine(PlayRoutine());
@@ -19,7 +21,13 @@ public class CutsceneController : MonoBehaviour
 
     IEnumerator PlayRoutine()
     {
-        // ❌ Отключаем управление
+        // Timeline запускается сразу
+        director.Play();
+
+        // Игрок ещё может двигаться 2 секунды
+        yield return new WaitForSeconds(2f);
+
+        // Теперь блокируем управление
         gameController.isInCutscene = true;
 
         playerController.enabled = false;
@@ -28,13 +36,15 @@ public class CutsceneController : MonoBehaviour
         playerRb.linearVelocity = Vector2.zero;
         playerRb.simulated = false;
 
-        // ▶️ Запуск Timeline
-        director.Play();
+        // Ждём окончания timeline
+        float remainingTime = (float)director.duration - 2f;
 
-        // ⏳ Ждём окончания
-        yield return new WaitForSeconds((float)director.duration);
+        if (remainingTime > 0)
+        {
+            yield return new WaitForSeconds(remainingTime);
+        }
 
-        // ✅ Возвращаем управление
+        // Возвращаем управление
         playerRb.simulated = true;
         playerController.enabled = true;
         playerAttack.enabled = true;

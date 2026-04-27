@@ -171,9 +171,16 @@ public class GameController : MonoBehaviour
     IEnumerator FirstDeathRoutine()
     {
         if (cutscene != null)
+        {
             cutscene.PlayCutscene();
 
-        yield return new WaitForSeconds((float)cutscene.director.duration);
+            if (cutscene.director != null)
+            {
+                yield return new WaitForSeconds(
+                    (float)cutscene.director.duration
+                );
+            }
+        }
 
         ClearClones();
         SpawnClones();

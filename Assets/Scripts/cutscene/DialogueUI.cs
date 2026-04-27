@@ -34,7 +34,11 @@ public class DialogUi : MonoBehaviour
         player.SetActive(false);
 
         CloseDialogueBox();
-        ShowDialogue(testDialogue);
+
+        if (testDialogue != null)
+        {
+            ShowDialogue(testDialogue);
+        }
     }
     public void ShowDialogue(DialogueObject dialogueObject)
     {
@@ -80,7 +84,10 @@ public class DialogUi : MonoBehaviour
         coins.SetActive(true);
         deathText.SetActive(true);
 
-        timeline.Play();
+        if (timeline != null)
+        {
+            timeline.Play();
+        }
     }
     public void CloseDialogueBox()
     {
