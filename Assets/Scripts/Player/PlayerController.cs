@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Animator animator;
     [SerializeField] SpriteRenderer sprite;
     [SerializeField] ParticleSystem dustParticle;
+    private bool useMobileInput = false;
 
     private Vector2 particlesStartPos;
 
@@ -33,6 +34,7 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        useMobileInput = Application.isMobilePlatform;
         particlesStartPos = dustParticle.transform.localPosition;
     }
 
@@ -41,7 +43,17 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("Speed", Mathf.Abs(horizontal));
         animator.SetBool("IsGrounded", IsGrounded());
 
+        UpdateFlip();
+
         HandleParticles();
+    }
+
+    private void UpdateFlip()
+    {
+        if (horizontal > 0)
+            sprite.flipX = false;
+        else if (horizontal < 0)
+            sprite.flipX = true;
     }
 
     private void HandleParticles()
@@ -126,6 +138,11 @@ public class PlayerController : MonoBehaviour
 
         bool grounded = IsGrounded();
 
+        if (useMobileInput) return;
+
+        horizontal = context.ReadValue<Vector2>().x;
+        vertical = context.ReadValue<Vector2>().y;
+
         if (horizontal > 0)
         {
             sprite.flipX = false;
@@ -168,5 +185,42 @@ public class PlayerController : MonoBehaviour
         return Physics2D.OverlapCircle(groundCheck.position, 0.3f, groundLayer);
     }
 
+    public void MobileUpDown()
+    {
+        vertical = 1f;
+    }
+
+    public void MobileDownDown()
+    {
+        vertical = -1f;
+    }
+
+    public void MobileVerticalStop()
+    {
+        vertical = 0f;
+    }
+
+    public void MobileMoveLeftDown()
+    {
+        horizontal = -1f;
+    }
+
+    public void MobileMoveRightDown()
+    {
+        horizontal = 1f;
+    }
+
+    public void MobileMoveStop()
+    {
+        horizontal = 0f;
+    }
+
+    public void MobileJump()
+    {
+        if (IsGrounded())
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpingPower);
+        }
+    }
     #endregion
 }
