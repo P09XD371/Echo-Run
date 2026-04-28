@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CutsceneTrigger : MonoBehaviour
 {
-    [SerializeField] private CutsceneController cutscene;
+    [SerializeField] private Cutscene3Controller cutscene;
 
     private bool triggered = false;
 

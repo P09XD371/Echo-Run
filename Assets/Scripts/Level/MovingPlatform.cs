@@ -7,18 +7,49 @@ public class MovingPlatform : MonoBehaviour
     public float moveSpeed = 2f;
 
     private Vector3 nextPosition;
+
     void Start()
     {
-        nextPosition = pointA.position;
+        nextPosition = new Vector3(
+            pointA.position.x,
+            pointA.position.y,
+            0f
+        );
     }
 
     void Update()
     {
-        transform.position = Vector3.MoveTowards(transform.position, nextPosition, moveSpeed * Time.deltaTime);
+        Vector3 targetPosition = new Vector3(
+            nextPosition.x,
+            nextPosition.y,
+            0f
+        );
 
-        if(transform.position == nextPosition )
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            targetPosition,
+            moveSpeed * Time.deltaTime
+        );
+
+        if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
         {
-            nextPosition = (nextPosition == pointA.position) ? pointB.position : pointA.position;
+            if (nextPosition.x == pointA.position.x &&
+                nextPosition.y == pointA.position.y)
+            {
+                nextPosition = new Vector3(
+                    pointB.position.x,
+                    pointB.position.y,
+                    0f
+                );
+            }
+            else
+            {
+                nextPosition = new Vector3(
+                    pointA.position.x,
+                    pointA.position.y,
+                    0f
+                );
+            }
         }
     }
 }
