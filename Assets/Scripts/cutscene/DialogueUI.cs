@@ -11,15 +11,19 @@ public class DialogUi : MonoBehaviour
     [SerializeField] private TMP_Text nameLabel;
     [SerializeField] private TMP_Text textLabel;
 
-    [SerializeField] private GameObject imagePlayer;
-    [SerializeField] private GameObject imageBoss;
+    [Header("Character Images")]
+    [SerializeField] private GameObject imagePlayer;   // Декстер
+    [SerializeField] private GameObject imageBoss;     // Искандер
+    [SerializeField] private GameObject imageBoss2;    // Марк
 
+    [Header("Dialogue Settings")]
     [SerializeField] private bool playDialogueOnStart = false;
     [SerializeField] private DialogueObject testDialogue;
     [SerializeField] private PlayableDirector timeline;
+    [SerializeField] private string nextSceneName;
 
+    [Header("Gameplay UI")]
     [SerializeField] private GameObject player;
-
     [SerializeField] private GameObject timer;
     [SerializeField] private GameObject coinCounter;
     [SerializeField] private GameObject coins;
@@ -31,14 +35,16 @@ public class DialogUi : MonoBehaviour
     {
         typewriterEffect = GetComponent<TypewriterEffect>();
 
-        timer.SetActive(false);
-        coinCounter.SetActive(false);
-        coins.SetActive(false);
-        deathText.SetActive(false);
+        // Скрываем HUD только на первом уровне
+        if (SceneManager.GetActiveScene().name == "Level1")
+        {
+            if (timer != null) timer.SetActive(false);
+            if (coinCounter != null) coinCounter.SetActive(false);
+            if (coins != null) coins.SetActive(false);
+            if (deathText != null) deathText.SetActive(false);
+        }
 
-        imagePlayer.SetActive(false);
-        imageBoss.SetActive(false);
-
+        HideAllImages();
         CloseDialogueBox();
 
         if (playDialogueOnStart && testDialogue != null)
@@ -60,20 +66,21 @@ public class DialogUi : MonoBehaviour
             string finalText = dialogue;
             bool isActionText = dialogue.StartsWith("*") && dialogue.EndsWith("*");
 
+            // действия типа *Марк улыбается*
             if (isActionText)
             {
-                imagePlayer.SetActive(false);
-                imageBoss.SetActive(false);
+                HideAllImages();
 
                 nameLabel.text = "";
-
                 textLabel.alignment = TextAlignmentOptions.Center;
+
                 finalText = "<i>" + dialogue + "</i>";
             }
             else
             {
                 textLabel.alignment = TextAlignmentOptions.Left;
 
+                // Декстер
                 if (dialogue.StartsWith("ГГ:"))
                 {
                     nameLabel.text = "Декстер";
@@ -81,7 +88,10 @@ public class DialogUi : MonoBehaviour
 
                     imagePlayer.SetActive(true);
                     imageBoss.SetActive(false);
+                    imageBoss2.SetActive(false);
                 }
+
+                // Искандер
                 else if (dialogue.StartsWith("НПС:"))
                 {
                     nameLabel.text = "Искандер";
@@ -89,13 +99,23 @@ public class DialogUi : MonoBehaviour
 
                     imagePlayer.SetActive(false);
                     imageBoss.SetActive(true);
+                    imageBoss2.SetActive(false);
+                }
+
+                // Марк
+                else if (dialogue.StartsWith("НПС2:"))
+                {
+                    nameLabel.text = "Марк";
+                    finalText = dialogue.Replace("НПС2:", "").Trim();
+
+                    imagePlayer.SetActive(false);
+                    imageBoss.SetActive(false);
+                    imageBoss2.SetActive(true);
                 }
                 else
                 {
                     nameLabel.text = "";
-
-                    imagePlayer.SetActive(false);
-                    imageBoss.SetActive(false);
+                    HideAllImages();
                 }
             }
 
@@ -127,7 +147,6 @@ public class DialogUi : MonoBehaviour
 
         CloseDialogueBox();
 
-        // Если это первый диалог → запускаем timeline
         if (timeline != null)
         {
             if (player != null) player.SetActive(true);
@@ -141,19 +160,28 @@ public class DialogUi : MonoBehaviour
         }
         else
         {
-            // Если это финальный диалог → переходим на Level2
-            SceneManager.LoadScene("Level2");
+            if (!string.IsNullOrEmpty(nextSceneName))
+            {
+                SceneManager.LoadScene(nextSceneName);
+            }
         }
+    }
+
+    private void HideAllImages()
+    {
+        if (imagePlayer != null) imagePlayer.SetActive(false);
+        if (imageBoss != null) imageBoss.SetActive(false);
+        if (imageBoss2 != null) imageBoss2.SetActive(false);
     }
 
     public void CloseDialogueBox()
     {
         dialogueBox.SetActive(false);
-        textLabel.text = string.Empty;
-        nameLabel.text = string.Empty;
 
-        if (imagePlayer != null) imagePlayer.SetActive(false);
-        if (imageBoss != null) imageBoss.SetActive(false);
+        textLabel.text = "";
+        nameLabel.text = "";
+
+        HideAllImages();
     }
 
     public void StartDialogueManually()
