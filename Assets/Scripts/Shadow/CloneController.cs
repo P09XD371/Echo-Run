@@ -38,7 +38,11 @@ public class CloneController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!replaying) return;
+        if (!replaying)
+            return;
+
+        if (frames == null || frames.Count == 0)
+            return;
 
         if (frameIndex >= frames.Count)
         {
@@ -54,14 +58,15 @@ public class CloneController : MonoBehaviour
         sr.flipX = frame.flipX;
 
         Vector2 velocity = (frame.position - oldPos) / Time.fixedDeltaTime;
-        anim.SetFloat("Speed", Mathf.Abs(velocity.x));
+
+        if (anim != null)
+            anim.SetFloat("Speed", Mathf.Abs(velocity.x));
 
         if (frame.attack && attackHitbox != null)
         {
             if (!attackHitbox.activeSelf)
             {
                 attackHitbox.SetActive(true);
-                Debug.Log(gameObject.name + " атакует на кадре " + frameIndex);
             }
         }
         else if (attackHitbox != null && attackHitbox.activeSelf)
@@ -88,8 +93,27 @@ public class CloneController : MonoBehaviour
     public void Init(List<Frame> newFrames)
     {
         frames = newFrames;
+
         frameIndex = 0;
         replaying = true;
+
+        rb.simulated = false;
+        rb.bodyType = RigidbodyType2D.Kinematic;
+
+        coll.enabled = false;
+
+        sr.color = Color.white;
+
+        gameObject.tag = "Clone";
+        gameObject.layer = LayerMask.NameToLayer("Clone");
+
+        if (frames != null && frames.Count > 0)
+        {
+            transform.position = frames[0].position;
+        }
+
+        if (attackHitbox != null)
+            attackHitbox.SetActive(false);
     }
 
     public void Restart()
@@ -97,10 +121,17 @@ public class CloneController : MonoBehaviour
         frameIndex = 0;
         replaying = true;
 
+        rb.simulated = false;
+        rb.bodyType = RigidbodyType2D.Kinematic;
+
+        coll.enabled = false;
+
+        sr.color = Color.white;
+
+        gameObject.tag = "Clone";
+        gameObject.layer = LayerMask.NameToLayer("Clone");
+
         if (attackHitbox != null)
             attackHitbox.SetActive(false);
-
-        rb.simulated = false;
-        coll.enabled = false;
     }
 }

@@ -127,7 +127,11 @@ public class DialogUi : MonoBehaviour
 
             while (!lineFinished)
             {
-                if (Keyboard.current.spaceKey.wasPressedThisFrame)
+                bool pressed =
+                    (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) ||
+                    (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame);
+
+                if (pressed)
                 {
                     if (typing != null)
                     {

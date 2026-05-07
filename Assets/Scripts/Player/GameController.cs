@@ -162,8 +162,11 @@ public class GameController : MonoBehaviour
         var pc = GetComponent<PlayerController>();
         var pa = GetComponent<PlayerAttack>();
 
-        pc.enabled = true;
-        pa.enabled = true;
+        if (pc != null)
+            pc.enabled = true;
+
+        if (pa != null)
+            pa.enabled = true;
 
         isDead = false;
     }
@@ -220,8 +223,11 @@ public class GameController : MonoBehaviour
         var pc = GetComponent<PlayerController>();
         var pa = GetComponent<PlayerAttack>();
 
-        pc.enabled = true;
-        pa.enabled = true;
+        if (pc != null)
+            pc.enabled = true;
+
+        if (pa != null)
+            pa.enabled = true;
 
         transform.localScale = new Vector3(2.247446f, 2.472268f, 1);
     }
